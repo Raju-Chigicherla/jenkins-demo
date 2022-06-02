@@ -10,6 +10,13 @@ pipeline {
     DATE = "May 02nd, 2022"
   }
   stages {
+    stage("init"){
+        steps{
+          script {
+            gv = load "deployScript.groovy"
+          }
+        }
+    }
     stage("Env Variables") {
       environment {
         NAME = "Raju Chigicherla"
@@ -34,7 +41,9 @@ pipeline {
     }
     stage("build") {
       steps {
-        echo 'Building the application...'
+        script {
+          gv.buildApp()
+        }
       }
     }
     stage("test") {
@@ -44,13 +53,16 @@ pipeline {
 				}
 			}
 			steps {
-        echo 'Testing the application...'
+        script {
+          gv.testApp()
+        }
       }
     }
     stage("deploy") {
       steps {
-        echo 'Deploying the application...'
-				echo "Deploying version ${params.VERSION}"
+        script {
+          gv.deployApp()
+        }				
       }
     }
   }
