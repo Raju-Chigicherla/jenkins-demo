@@ -1,5 +1,9 @@
 pipeline {
   agent any
+	parameters {
+		choice(name: 'VERSION', choices: ['1.0', '1.1', '2.0'], description: '')
+		booleanParam(name: 'executeTests', defaultValue: true, description: '')
+	}
   
   // Using 'environment'
   environment {
@@ -19,7 +23,7 @@ pipeline {
         }
         echo "This is an example for ${env.WEBSITE}"
         
-		// using withEnv([]) method
+				// using withEnv([]) method
         withEnv(["TEST_VARIABLE=TEST_VALUE"]) {
           echo "The value of TEST_VARIABLE is ${env.TEST_VARIABLE}"
         }
@@ -34,13 +38,19 @@ pipeline {
       }
     }
     stage("test") {
-      steps {
+			when {
+				expression {
+					params.executeTests
+				}
+			}
+			steps {
         echo 'Testing the application...'
       }
     }
     stage("deploy") {
       steps {
         echo 'Deploying the application...'
+				echo "Deploying version ${VERSION}"
       }
     }
   }
