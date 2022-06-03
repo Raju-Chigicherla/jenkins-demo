@@ -1,5 +1,8 @@
 pipeline {
   agent any
+	triggers {
+		pollSCM(* * * * *)
+	}
 	parameters {
 		choice(name: 'VERSION', choices: ['1.0', '1.1', '2.0'], description: '')
 		booleanParam(name: 'executeTests', defaultValue: true, description: '')
