@@ -1,11 +1,22 @@
 pipeline {
   agent any
+	parameters {
+		choice(name: 'VERSION', choices: ['1.0', '1.1', '2.0'], description: '')
+		booleanParam(name: 'executeTests', defaultValue: true, description: '')
+	}
   
   // Using 'environment'
   environment {
     DATE = "May 02nd, 2022"
   }
   stages {
+    stage("init"){
+        steps{
+          script {
+            gv = load "deployScript.groovy"
+          }
+        }
+    }
     stage("Env Variables") {
       environment {
         NAME = "Raju Chigicherla"
@@ -19,7 +30,7 @@ pipeline {
         }
         echo "This is an example for ${env.WEBSITE}"
         
-		// using withEnv([]) method
+				// using withEnv([]) method
         withEnv(["TEST_VARIABLE=TEST_VALUE"]) {
           echo "The value of TEST_VARIABLE is ${env.TEST_VARIABLE}"
         }
@@ -30,17 +41,28 @@ pipeline {
     }
     stage("build") {
       steps {
-        echo 'Building the application...'
+        script {
+          gv.buildApp()
+        }
       }
     }
     stage("test") {
-      steps {
-        echo 'Testing the application...'
+			when {
+				expression {
+					params.executeTests
+				}
+			}
+			steps {
+        script {
+          gv.testApp()
+        }
       }
     }
     stage("deploy") {
       steps {
-        echo 'Deploying the application...'
+        script {
+          gv.deployApp()
+        }				
       }
     }
   }
